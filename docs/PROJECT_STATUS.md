@@ -53,10 +53,11 @@
 Catatan verifikasi versi per **29 Oktober 2026**:
 
 1. **PHP Runtime di Dockerfile:**
-   - **Versi yang dipakai:** `php:8.3-fpm-alpine` (mengacu pada branch patch keamanan PHP 8.3.36+ / 8.4.27+ yang dirilis 21 Oktober 2026 untuk mitigasi CVE-2026-109618 dan CVE-2026-109619).
-   - **Sumber resmi:** [php.net/supported-versions.php](https://www.php.net/supported-versions.php) & Arsip Advisori Keamanan PHP 2026 (`https://www.php.net/archive/2026.php`).
+   - **Tag spesifik yang dipakai:** `php:8.3.36-fpm-alpine3.24` (bukan tag mengambang `php:8.3-fpm-alpine`).
+   - **Pemeriksaan Docker Hub:** Diverifikasi langsung pada Docker Hub Official Library PHP (`hub.docker.com/_/php`) bahwa tag `8.3.36-fpm-alpine3.24` dan `8.3.36-fpm-alpine` benar-benar ada dan tersedia.
+   - **Verifikasi Rilis Keamanan:** Diverifikasi ke [php.net/archive/2026.php](https://www.php.net/archive/2026.php) dan [php.net/supported-versions.php](https://www.php.net/supported-versions.php) bahwa patch PHP 8.3.36 dirilis resmi pada 21 Oktober 2026 dan memuat perbaikan untuk dua kerentanan kritis Remote Code Execution (RCE): CVE-2026-109618 (RCE via OOM corruption) dan CVE-2026-109619 (RCE via stale global state).
    - **Tanggal verifikasi:** 29 Oktober 2026.
-   - **Status dukungan:** PHP 8.3 menerima security fixes hingga 31 Desember 2027; PHP 8.4 menerima bug fixes hingga 31 Desember 2026.
+   - **Status dukungan upstream:** PHP 8.3 aktif menerima security fixes hingga 31 Desember 2027.
 
 2. **Laravel Framework:**
    - **Versi yang dipakai:** `^13.0` di `composer.json`.
@@ -65,7 +66,7 @@ Catatan verifikasi versi per **29 Oktober 2026**:
    - **Status dukungan:** Siklus rilis tahunan Laravel dengan dukungan 18 bulan bug fixes dan 2 tahun security fixes.
 
 3. **Tailwind CSS:**
-   - **Versi yang dipakai:** Tailwind CSS v4 (`@tailwindcss/vite` v4.3.3 / `^4.0.0` di `package.json`).
+   - **Versi dipatok:** `tailwindcss: 4.3.3` dan `@tailwindcss/vite: 4.3.3` di `package.json` (dipatok persis sesuai versi yang terpasang di `package-lock.json`, bukan rentang `^4.0.0`).
    - **Sumber resmi:** [tailwindcss.com/blog](https://tailwindcss.com/blog) & NPM registry (`npmjs.com/package/tailwindcss`).
    - **Tanggal verifikasi:** 29 Oktober 2026.
    - **Status build:** Berhasil di-compile menggunakan Vite v6 tanpa error (`public/build/`).

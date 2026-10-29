@@ -86,6 +86,21 @@ assert(gitignoreContent.includes('/node_modules/'), '.gitignore mengecualikan no
 assert(!fs.existsSync(path.resolve('.env')), 'File .env riil TIDAK ADA di repositori');
 assert(fs.existsSync(path.resolve('.env.example')), 'Template .env.example tersedia');
 
+console.log('\n4. Uji Konfigurasi Test Runner In-Memory (phpunit.xml & DatabaseFoundationMigrationTest.php):');
+const phpunitPath = path.resolve('phpunit.xml');
+assert(fs.existsSync(phpunitPath), 'phpunit.xml tersedia');
+const phpunitContent = fs.readFileSync(phpunitPath, 'utf8');
+assert(phpunitContent.includes('name="DB_CONNECTION" value="sqlite"'), 'phpunit.xml menggunakan driver sqlite lokal');
+assert(phpunitContent.includes('name="DB_DATABASE" value=":memory:"'), 'phpunit.xml menggunakan database :memory: (bukan Supabase)');
+assert(!phpunitContent.includes('supabase.com'), 'phpunit.xml tidak pernah mengarah ke Supabase');
+
+const featureTestPath = path.resolve('tests/Feature/DatabaseFoundationMigrationTest.php');
+assert(fs.existsSync(featureTestPath), 'tests/Feature/DatabaseFoundationMigrationTest.php tersedia');
+const featureTestContent = fs.readFileSync(featureTestPath, 'utf8');
+assert(featureTestContent.includes('test_database_migrations_create_all_foundation_tables_and_exclude_daily_agendas'), 'Memuat tes migration fondasi in-memory');
+assert(featureTestContent.includes('test_seeder_succeeds_when_admin_initial_password_is_set'), 'Memuat tes seeder dengan password admin terisi');
+assert(featureTestContent.includes('test_seeder_fails_when_admin_initial_password_is_empty'), 'Memuat tes seeder gagal jika password admin kosong');
+
 console.log('\n========================================================');
 console.log(`Total Hasil: ${passed} Passed, ${failed} Failed`);
 console.log('========================================================');

@@ -7,8 +7,8 @@ COPY vite.config.js ./
 COPY resources ./resources
 RUN npm run build
 
-# Stage 2: PHP Application Runtime
-FROM php:8.3-fpm-alpine
+# Stage 2: PHP Application Runtime (Pinned to verified security patch release)
+FROM php:8.3.36-fpm-alpine3.24
 
 # Install system dependencies & PostgreSQL driver
 RUN apk add --no-cache \
