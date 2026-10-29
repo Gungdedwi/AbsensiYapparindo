@@ -56,14 +56,12 @@ Simpan data minimum yang diperlukan untuk tugas offline:
 
 Jangan simpan data pribadi berlebihan seperti alamat, nomor telepon, tanggal lahir, atau informasi kesehatan siswa hanya demi kenyamanan offline. Jangan menyimpan password, access token, refresh token, database credential, Supabase secret/service-role key, atau cookie sebagai payload lokal buatan aplikasi.
 
-IndexedDB bukan jaminan enkripsi at-rest. Minimalkan data dan durasi penyimpanan. Minta pengguna menggunakan perangkat yang memiliki screen lock dan akun OS terlindungi. Pada perangkat bersama, buat prosedur serah-terima dan keluar akun yang aman. Jika sesi Laravel kedaluwarsa saat offline, pengguna boleh tetap melihat/mengisi ruang kerja lokal yang sudah terikat ke akun sebelumnya sesuai kebijakan yang disetujui, tetapi tidak boleh sinkron sampai autentikasi online berhasil lagi. Jangan menyimpan token sesi untuk memperpanjang akses offline. Jangan mengklaim enkripsi lokal aman jika kunci diletakkan di kode JavaScript dengan cara yang dapat diambil oleh script berbahaya.
+IndexedDB bukan jaminan enkripsi at-rest. Minimalkan data dan durasi penyimpanan. Minta pengguna menggunakan perangkat yang memiliki screen lock dan akun OS terlindungi.
 
-Tentukan bersama pengguna:
-- berapa lama jadwal/roster boleh tersimpan lokal;
-- berapa lama antrean belum tersinkron dipertahankan;
-- apakah banyak akun boleh menggunakan perangkat sama;
-- apa yang dilakukan saat logout jika ada data offline yang belum tersinkron.
-Usulan aman: jangan menghapus pending records ketika logout tanpa peringatan dan pilihan yang dapat dipahami; jangan tampilkan data akun lama kepada akun lain. Sinkronkan atau ekspor recovery lokal yang aman sesuai desain sebelum clear data.
+**Kebijakan yang telah diputuskan pengguna:**
+- **Rentang data offline:** jadwal dan roster kelas disimpan untuk **1 minggu ke depan**.
+- **Prosedur logout pada antrean pending:** Pengguna diizinkan logout meskipun masih ada antrean offline yang belum tersinkron. Data antrean lokal **diisolasi dan diikat ke user ID/account binding masing-masing** di IndexedDB sehingga tidak dapat dilihat atau diakses oleh akun lain yang masuk di perangkat yang sama. Antrean tersebut akan dilanjutkan sinkronisasinya saat akun bersangkutan login kembali dalam kondisi online.
+- Jika sesi Laravel kedaluwarsa saat offline, guru tetap dapat mengisi ruang kerja lokal yang terikat akunnya, dan sinkronisasi akan diproses setelah guru mengautentikasi ulang saat online. Jangan menyimpan token sesi secara eksplisit di IndexedDB.
 
 ### C. Antrean perubahan lokal
 Setiap operasi lokal memiliki:
@@ -118,13 +116,11 @@ Skenario konflik meliputi:
 - server menerima perubahan lalu respons hilang;
 - format lokal berubah setelah update aplikasi.
 
-Aturan:
-- jangan menerapkan last-write-wins tanpa keputusan eksplisit dan audit;
-- jangan menimpa record server yang telah difinalkan tanpa proses koreksi yang disetujui;
-- tampilkan konflik per catatan dengan nilai/status yang dibandingkan;
-- sediakan tindakan yang jelas: gunakan server, ajukan perubahan untuk ditinjau, atau koreksi manual sesuai izin;
-- request yang sudah diterima server tetapi responsnya hilang harus aman dikirim ulang;
-- jika schema lokal sudah tidak kompatibel, jangan menghapus antrean. Sediakan jalur migrasi lokal atau blokir sync dengan pesan tindakan yang jelas.
+Aturan resolusi konflik (telah diputuskan pengguna):
+- **Server-Wins:** jika terjadi perbedaan data (misal admin sudah mengedit/membuat absensi di server sementara guru mengirim data offline sesi/siswa yang sama), data server dipertahankan.
+- **Notifikasi ke Guru:** akun guru menerima notifikasi jelas bahwa data telah dibuat/diubah oleh admin di server, sehingga guru mengetahui alasan catatan lokalnya tidak menimpa server.
+- Request yang sudah diterima server tetapi responsnya hilang harus aman dikirim ulang via idempotency key.
+- Jika schema lokal sudah tidak kompatibel, jangan menghapus antrean. Sediakan pesan tindakan yang jelas.
 
 ## 6. Kebijakan laporan
 
@@ -187,14 +183,13 @@ Biaya/risiko:
 - semua laporan agregat tidak dapat dijamin lengkap sampai sinkronisasi;
 - browser berbeda dalam dukungan Background Sync dan pengelolaan storage.
 
-## 10. Persetujuan yang diperlukan
+## 10. Status persetujuan pengguna (Fase 1)
 
-Sebelum implementasi, pengguna harus menyetujui:
-1. cakupan offline fase pertama (rekomendasi: absensi siswa dan jurnal/materi; agenda/kehadiran pegawai menyusul);
-2. rentang data yang bisa dipersiapkan offline;
-3. retensi roster/absensi lokal dan prosedur logout;
-4. aturan konflik;
-5. target browser/perangkat;
-6. indikator/peringatan untuk laporan yang belum lengkap karena sync tertunda.
+Keputusan yang telah disetujui:
+1. **Cakupan offline fase pertama:** Absensi siswa dan jurnal/materi pembelajaran. Agenda/kehadiran pegawai non-guru ditunda.
+2. **Rentang data offline:** 1 minggu ke depan.
+3. **Retensi & Prosedur logout:** Logout diizinkan; antrean pending diisolasi per akun di IndexedDB.
+4. **Aturan konflik:** Data server dipertahankan (*server-wins*); sistem mengirimkan notifikasi ke akun guru.
+5. **Indikator laporan:** Laporan harian/dashboard online wajib menandai status jika ada sync tertunda.
 
-Jangan menulis service worker, IndexedDB schema, endpoint sync, migration, atau kode aplikasi sebelum keputusan ini disetujui.
+Tahap persiapan spesifikasi offline (Fase 1) telah selesai dan diselaraskan. Kode aplikasi/service worker akan diimplementasikan pada fase implementasi setelah mendapat persetujuan lanjutan.

@@ -21,8 +21,8 @@
 6. Guru mencatat nomor pertemuan dan materi pembelajaran.
 7. Sistem menghitung rekap dari detail status dan memvalidasi sesi.
 8. Guru meninjau rekap sebelum menyimpan/mengirim.
-9. Workflow akhir (langsung final atau diverifikasi admin) menunggu keputusan.
-10. Sistem mencatat waktu dan pelaku perubahan penting.
+9. Guru mengirim laporan: status sesi dan jurnal langsung menjadi **Final Submitted** (tidak memerlukan persetujuan bertingkat).
+10. Sistem mencatat waktu dan pelaku pengiriman (audit log). Catatan yang telah difinalkan dapat dikoreksi oleh admin jika terjadi kekeliruan data.
 
 ## 3. Alur agenda harian guru/pegawai
 
@@ -70,31 +70,31 @@
 5. Sistem menghasilkan file dengan filter yang sama.
 6. QA merekonsiliasi isi file terhadap data sumber.
 
-## 8. Keputusan operasional terbuka
+## 8. Keputusan operasional yang telah disahkan
 
-- Siapa yang mencatat kehadiran guru/pegawai dan sumber data apa yang dipakai?
-- Apakah agenda wajib per orang/per hari/per shift/per kategori?
-- Apakah laporan perlu verifikasi admin?
-- Bagaimana menangani hari libur, ujian, jadwal berubah, guru pengganti, dan sesi tambahan?
-- Siapa yang boleh mengoreksi catatan yang telah difinalkan?
-
+- **Pengguna Akun:** Difokuskan pada Guru dan Admin; akun pegawai non-guru ditunda.
+- **Status Laporan:** Langsung *final submitted* saat dikirim oleh guru.
+- **Status Training/DW:** Ditandai manual oleh guru saat sesi kelas.
+- **Retensi Offline:** Disimpan untuk rentang 1 minggu ke depan.
+- **Konflik:** *Server-wins*; akun guru mendapatkan notifikasi jika data sudah diubah/dibuat oleh admin.
+- **Koreksi:** Admin berwenang mengoreksi catatan yang telah final bila ada kekeliruan, dengan jejak audit tercatat.
 
 ## 9. Alur offline saat sinyal tidak stabil
 
-1. Ketika tersedia koneksi, guru login dan menyiapkan sesi/jadwal serta roster yang diperlukan untuk tanggal/rentang yang diizinkan.
+1. Ketika tersedia koneksi, guru login dan menyiapkan sesi/jadwal serta roster yang diperlukan untuk rentang 1 minggu ke depan.
 2. UI menunjukkan waktu terakhir sinkronisasi dan data yang tersedia secara offline.
 3. Ketika koneksi hilang, app shell yang telah di-cache tetap membuka antarmuka offline; guru dapat mengisi absensi dan jurnal yang memang sudah disiapkan lokal.
 4. Sistem menyimpan perubahan di IndexedDB dengan status “Tersimpan di perangkat — belum ke server”.
 5. Guru melihat antrean perubahan yang menunggu sinkronisasi. Tidak boleh muncul konfirmasi “berhasil terkirim” pada server.
 6. Ketika koneksi kembali, aplikasi mencoba sync dari halaman aktif/online event atau tombol “Sinkronkan sekarang”. Background Sync hanya opsional karena tidak didukung merata.
-7. Server memvalidasi autentikasi, hak akses, sesi, roster, dan status; kemudian memberi acknowledgement per record.
-8. Record yang diterima ditandai tersinkron. Record conflict/failed tetap tersimpan lokal untuk ditinjau dan tidak ditimpa diam-diam.
+7. Server memvalidasi autentikasi, hak akses, sesi, roster, dan status; kemudian memberi acknowledgement per record secara idempotent.
+8. **Resolusi Konflik:** Jika admin telah mengedit/membuat catatan di server saat guru offline, data server dipertahankan (*server-wins*). Server mengirim notifikasi ke akun guru bahwa data telah dibuat/diubah oleh admin.
 9. Admin hanya menggunakan data yang telah tersinkron untuk laporan final. Jika ada data tertunda yang seharusnya masuk laporan, tampilkan “Data belum lengkap”.
-10. Logout ketika ada pending record memberi peringatan. Tidak boleh menghapus antrean tanpa persetujuan pengguna.
+10. **Prosedur Logout:** Pengguna diizinkan logout meskipun ada antrean pending. Data antrean lokal diisolasi dan diikat ke user ID di IndexedDB sehingga tidak bocor ke akun lain.
 
 ## 10. Batas operasi offline
 
 - Absensi siswa dan jurnal/materi merupakan prioritas fase pertama.
-- Agenda harian dan kehadiran guru/pegawai dapat ditambahkan setelah mekanisme sync inti teruji atau jika secara eksplisit masuk scope fase pertama.
-- Dashboard sekolah agregat, import/export, finalisasi laporan WhatsApp, dan verifikasi admin memerlukan koneksi.
+- Agenda harian guru dapat diisi saat online/tersinkron; fitur pegawai non-guru ditunda.
+- Dashboard sekolah agregat, import/export, dan finalisasi laporan WhatsApp memerlukan koneksi online.
 - Perangkat harus pernah memuat aplikasi secara online dan menyiapkan data sebelum bekerja offline.

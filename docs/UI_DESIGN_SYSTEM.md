@@ -90,3 +90,20 @@ Mode offline membutuhkan desain khusus; jangan hanya menampilkan toast kecil.
 - Jika data jadwal/roster terlalu lama, beri peringatan yang menjelaskan bahwa data perlu diperbarui saat online.
 - Saat logout dan terdapat data pending, tampilkan konfirmasi yang tidak menyesatkan dan jangan membuang data tanpa keputusan pengguna.
 - Pada halaman admin/report, beri banner data belum lengkap bila ada sync tertunda yang relevan.
+
+## 8. Target perangkat mobile (DRAFT — BELUM DISETUJUI)
+
+Sumber: jawaban pengguna. Hal ini menjadi dasar keputusan layout dan pengujian.
+
+- Absensi dan jurnal dilakukan sepenuhnya di ponsel. Laptop tidak diperlukan untuk alur guru.
+- Ponsel bersifat pribadi milik guru. Sekolah tidak menyediakan perangkat. Aplikasi tidak boleh mengandalkan perangkat khusus.
+- Mayoritas guru memakai Android. Sebagian memakai iPhone (iOS Safari). Keduanya wajib didukung.
+
+Konsekuensi untuk desain dan pengujian (usulan, perlu disetujui):
+- Alur absensi per kelas harus bisa diselesaikan dengan satu tangan, termasuk tombol "Tandai semua hadir" dengan koreksi per siswa.
+- Strategi tabel di ponsel: daftar kartu per siswa (bukan tabel lebar). Tabel lebar hanya untuk laporan admin di layar besar.
+- Target sentuh minimal sesuai pedoman aksesibilitas; lebar layar acuan 360–430 px.
+- Uji wajib di Android Chrome dan iPhone Safari pada perangkat nyata. Perilaku PWA, penyimpanan offline, dan sinkronisasi di iOS Safari harus diverifikasi terhadap dokumentasi resmi sebelum keputusan offline difinalkan. Jangan berasumsi sama dengan Android.
+- Instal PWA ke layar utama perlu diuji di kedua platform. Jika tidak konsisten, aplikasi tetap harus bisa dibuka dari browser.
+
+Pertanyaan terbuka: proporsi guru Android dan iPhone, dan apakah guru bersedia memasang aplikasi ke layar utama.

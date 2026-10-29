@@ -24,23 +24,23 @@ Sistem meliputi data master, autentikasi, hak akses, absensi siswa, jurnal/mater
 | FR-006 | Guru melihat hanya penugasan yang berhak diakses | Must | Otorisasi server-side |
 | FR-007 | Guru mencatat absensi setiap siswa untuk satu sesi pembelajaran | Must | Tidak boleh ada duplikasi siswa-sesi |
 | FR-008 | Sistem menghitung rekap absensi per status secara otomatis | Must | Detail absensi adalah sumber kebenaran |
-| FR-009 | Status Training dan DW dibedakan dari Hadir dan Alpa | Must | Aturan tanggal/penempatan harus diklarifikasi |
+| FR-009 | Status Training dan DW dibedakan dari Hadir dan Alpa, ditandai manual oleh guru saat sesi kelas | Must | D-007, D-022 |
 | FR-010 | Sistem membedakan belum dicatat dari tidak hadir | Must | Tidak ada inferensi dari data kosong |
 | FR-011 | Guru mencatat nomor pertemuan dan materi yang dibahas | Must | Terhubung dengan sesi/jadwal |
 | FR-012 | Sistem memantau sesi yang dijadwalkan tetapi jurnalnya belum lengkap | Must | Memerlukan jadwal harian dan pengecualian |
-| FR-013 | Guru/pegawai dapat memiliki agenda harian terpisah dari jurnal mengajar | Must | Kewajiban agenda harus didefinisikan |
-| FR-014 | Sistem mencatat kehadiran guru/pegawai dan kategori/status | Must | Metode input masih terbuka |
+| FR-013 | Guru dapat memiliki agenda harian terpisah dari jurnal mengajar (fokus guru, non-guru ditunda) | Must | D-008, D-020 |
+| FR-014 | Sistem mencatat kehadiran guru (pegawai non-guru dicatat terpusat/ditunda ke fase lanjutan) | Must | D-020 |
 | FR-015 | Admin melihat dashboard dan filter laporan | Must | Hak akses diterapkan di server |
 | FR-016 | Admin mengekspor PDF dan Excel | Must | Isi sesuai filter dan sumber yang sama |
 | FR-017 | Sistem menghasilkan pesan WhatsApp bagian I/II/III | Must | Mengikuti dokumen `WHATSAPP_REPORT_SPEC.md` |
 | FR-018 | Pesan WhatsApp dapat dipratinjau dan diedit sebelum membuka WhatsApp | Must | Human-in-the-loop; aplikasi tidak mengirim otomatis |
 | FR-019 | Sistem menampilkan peringatan bila data yang diperlukan untuk laporan belum lengkap | Must | Tidak membuat klaim final otomatis |
-| FR-020 | Perubahan penting dapat diaudit | Should | Retensi dan field audit perlu diputuskan |
-| FR-021 | Sistem menyediakan filter tanggal, tahun ajaran, semester, kelas, guru, mata pelajaran, kategori pegawai, dan status | Must | Filter sesuai akses |
-| FR-022 | Sistem dapat membedakan draf, dikirim, perlu perbaikan, diverifikasi bila workflow persetujuan dipilih | Should | Workflow belum final |
-| FR-023 | Guru dapat menyiapkan jadwal/roster yang diizinkan saat online dan mencatat absensi/jurnal tertentu saat offline | Must for offline phase 1 | Cakupan final menunggu persetujuan; lihat `OFFLINE_MODE_SPEC.md` |
-| FR-024 | Perubahan offline disimpan lokal dengan status yang jelas dan antrean sinkronisasi idempotent | Must for offline phase 1 | Tidak boleh diklaim sebagai data server sebelum acknowledgement |
-| FR-025 | Saat online kembali, sistem menyinkronkan data, melaporkan konflik/error per item, dan tidak membuat duplikat | Must for offline phase 1 | Otorisasi divalidasi ulang di server |
+| FR-020 | Perubahan penting dapat diaudit | Should | Jejak audit waktu dan pelaku perubahan |
+| FR-021 | Sistem menyediakan filter tanggal, tahun ajaran, semester, kelas, guru, mata pelajaran, kategori pegawai, dan status | Must | Filter sesuai akses (WITA / Asia/Makassar) |
+| FR-022 | Laporan absensi dan jurnal guru berstatus Draft atau Final Submitted langsung tanpa verifikasi bertingkat | Must | D-021 |
+| FR-023 | Guru dapat menyiapkan jadwal/roster untuk rentang 1 minggu ke depan saat online dan mencatat saat offline | Must for offline phase 1 | D-023 |
+| FR-024 | Perubahan offline disimpan lokal di IndexedDB, diisolasi per akun saat logout, dengan idempotency key | Must for offline phase 1 | D-024 |
+| FR-025 | Saat online kembali, sistem sync idempotent; bila konflik, data server menang (*server-wins*) dan akun guru diberi notifikasi | Must for offline phase 1 | D-025 |
 | FR-026 | Dashboard/laporan memberi peringatan jika data yang diharapkan belum tersinkron | Must | Jangan klaim laporan lengkap saat ada sync tertunda yang relevan |
 
 ## 4. Kebutuhan nonfungsional
@@ -81,15 +81,16 @@ Sistem meliputi data master, autentikasi, hak akses, absensi siswa, jurnal/mater
 - Tautan WhatsApp hanya mengisi teks; aplikasi tidak menyatakan pesan sudah terkirim.
 - Tes kritis dan review keamanan dilaksanakan sebelum rilis.
 
-## 7. Hal yang membutuhkan keputusan
+## 7. Hal yang telah diputuskan dan keputusan operasional lanjutan
 
-- Apakah admin perlu memverifikasi laporan guru atau guru langsung menyelesaikan pengiriman?
-- Bagaimana agenda wajib ditentukan per kategori pegawai?
-- Siapa dan bagaimana mencatat kehadiran pegawai?
-- Bagaimana menentukan siswa yang memenuhi syarat status Training/DW, dan untuk rentang tanggal apa?
-- Bagaimana jadwal mingguan berubah menjadi sesi aktual pada tanggal tertentu?
-- Data apa yang wajib ditampilkan pada laporan harian dan siapa penerimanya?
-- Template impor serta format resmi laporan sekolah.
-- Hosting, backup, dan retensi arsip.
+**Keputusan yang telah disahkan:**
+- Laporan guru bersifat langsung *final submitted* (tidak ada proses verifikasi bertingkat).
+- Akun difokuskan untuk Guru dan Admin sekolah (akun pegawai non-guru ditunda).
+- Status siswa Training/DW ditandai secara manual oleh guru di kelas.
+- Mode offline menyimpan data 1 minggu; logout mengisolasi antrean lokal; konflik diselesaikan secara *server-wins* dengan notifikasi ke akun guru.
+- Zona waktu resmi: WITA (`Asia/Makassar`).
 
-Semua hal di atas harus dituntaskan atau diberi asumsi eksplisit yang disetujui sebelum implementasi bagian terkait.
+**Keputusan operasional lanjutan:**
+- Aturan penjadwalan khusus (hari libur, ujian, guru piket/pengganti).
+- Template format impor data sekolah (Excel/CSV).
+- Format resmi cetak PDF/Excel (kop surat, nomor pengesahan).

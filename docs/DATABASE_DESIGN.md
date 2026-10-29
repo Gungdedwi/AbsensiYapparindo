@@ -111,23 +111,20 @@ Status final perlu disetujui sekolah; daftar ini contoh klasifikasi awal untuk m
 11. Gunakan indeks sesuai query yang benar-benar diperlukan.
 12. Data kosong, status belum konfirmasi, dan nol adalah keadaan yang berbeda.
 
-## 7. Opsi schema Supabase
+## 7. Opsi schema dan koneksi Supabase
 
-Evaluasi schema PostgreSQL yang digunakan Laravel. Quickstart resmi Supabase untuk Laravel menyatakan Laravel memakai tabelnya sendiri dan memperingatkan bahwa schema `public` diekspos oleh Data API secara default. Rekomendasi awal: pertimbangkan schema internal khusus Laravel dan jangan memakai Supabase Data API dari browser jika tidak diperlukan. Konfirmasi desain akses sebelum memilih; semua koneksi harus memakai TLS dan secret server-side.
+- **Koneksi Supabase:** Menggunakan **Session Pooler (IPv4)** melalui TLS dengan port pooler (default 5432 / session pooler port Supabase). Hal ini menjamin kompatibilitas penuh dengan lingkungan hosting Render Free dan jaringan internet pengembang lokal yang belum mendukung routing native IPv6.
+- **Isolasi Schema:** Pertimbangkan schema PostgreSQL khusus (misal `app` atau schema yang tidak otomatis dipublikasikan ke Supabase Data API) agar tabel internal Laravel tidak terekspos langsung ke browser tanpa RLS.
+- Kredensial database disimpan secara aman di environment variables server-side (`.env` lokal / Render Environment) dan tidak pernah dikirim ke browser.
 
-## 8. Pertanyaan terbuka sebelum finalisasi
+## 8. Status keputusan desain data (Fase 1)
 
-- Apakah user dapat mempunyai lebih dari satu peran?
-- Siapa yang mempunyai akun: semua guru, semua pegawai, hanya admin, atau kombinasi?
-- ID resmi apa yang tersedia untuk guru/siswa dan apakah wajib unik?
-- Aturan Training/DW: periode, mitra, pembimbing, dan keterlibatan pada absensi harian?
-- Apakah satu jurnal per sesi atau bisa beberapa catatan?
-- Bagaimana nomor pertemuan ditentukan?
-- Jadwal berasal dari impor file apa dan siapa yang mengubah jadwal?
-- Apakah absensi yang sudah dikirim dapat diperbaiki; siapa yang menyetujui?
-- Berapa retensi audit dan arsip?
-- Koneksi Supabase: direct atau session pooler berdasarkan hosting dan jaringan.
+- **Akun & Peran:** Fokus pada Guru dan Admin; satu akun terikat profil guru atau admin.
+- **Status Sesi & Jurnal:** Berstatus `DRAFT` atau `SUBMITTED` (langsung final submitted oleh guru tanpa tahap verifikasi bertingkat).
+- **Status Training/DW Siswa:** Nilai enum `TRAINING` dan `DAILY_WORKER` dipilih manual oleh guru pengajar pada saat sesi kelas berlangsung.
+- **Entitas Notifikasi:** Menambahkan entitas `notifications` (atau Laravel standard notifications table) untuk mengirimkan pemberitahuan ke akun guru saat terjadi resolusi konflik di mana catatan di server telah dibuat/diubah oleh admin.
+- **Zona Waktu:** Semua field timestamp/date mengacu pada `Asia/Makassar` (WITA).
 
 ## 9. Gerbang persetujuan
 
-Sebelum implementasi, pengguna harus menyetujui ERD, kamus data, status, constraint, schema, strategi import, dan aturan retensi. Jangan menulis SQL, migration, atau seeding sampai persetujuan diberikan.
+Sebelum implementasi teknis (Fase 2), ERD dan struktur migration Laravel akan disiapkan berdasarkan keputusan di atas. Jangan menulis SQL, migration, atau seeding sampai izin Fase 2 diberikan.

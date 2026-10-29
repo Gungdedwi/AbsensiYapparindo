@@ -4,48 +4,42 @@
 
 ## 1. Peran yang diusulkan
 
-- **Administrator sistem:** mengelola konfigurasi dan akun teknis.
-- **Admin/operator sekolah:** mengelola data master sesuai kewenangan, memantau data, mengoreksi/memeriksa laporan, ekspor, dan membuat pesan laporan.
-- **Guru:** membaca penugasan sendiri, mengisi jurnal serta absensi siswa pada sesi yang menjadi kewenangannya, dan agenda bila wajib.
-- **Pegawai non-guru:** subjek pencatatan kehadiran/agenda; apakah memiliki akun adalah keputusan terbuka.
-- **Siswa:** subjek absensi; tidak ada akun siswa pada cakupan awal.
+- **Administrator sistem:** mengelola konfigurasi teknis dan akun.
+- **Admin/operator sekolah:** mengelola data master, memantau dashboard sekolah, koreksi operasional data final (tercatat audit), ekspor laporan, dan menyusun pesan WhatsApp.
+- **Guru:** masuk dengan akun pribadi, membaca penugasan mengajar sendiri, mencatat absensi siswa (termasuk status manual Training/DW) dan materi jurnal, mengirim laporan (*final submitted*), serta mengisi agenda harian sendiri.
+- **Pegawai non-guru:** belum memiliki akun login pada fase ini (fokus guru dan admin).
+- **Siswa:** subjek absensi; tidak ada akun siswa.
 
-## 2. Matriks awal
+## 2. Matriks peran
 
-| Objek/tindakan | Administrator sistem | Admin sekolah | Guru | Pegawai tanpa akun |
-|---|---|---|---|---|
-| Mengelola akun/peran | Ya, minimum yang diperlukan | Terbatas sesuai kebijakan | Tidak | Tidak |
-| Membaca seluruh data master | Berdasarkan kebutuhan admin | Ya sesuai ruang lingkup sekolah | Hanya data terkait penugasan | Tidak |
-| Mengubah siswa/kelas/periode | Tidak otomatis; sesuai tugas | Ya, jika diizinkan | Tidak | Tidak |
-| Membaca roster kelas | Sesuai kebutuhan | Ya | Hanya kelas yang ditugaskan | Tidak |
-| Mencatat absensi siswa | Tidak otomatis | Koreksi/operasional sesuai kebijakan | Hanya sesi yang ditugaskan | Tidak |
-| Mengisi jurnal/materi | Tidak otomatis | Koreksi jika diberi wewenang | Sesi yang ditugaskan | Tidak |
-| Mengisi agenda harian | Jika relevan dan diizinkan | Dapat mencatat/membantu jika ditentukan | Agenda sendiri jika diwajibkan | Metode masih terbuka |
-| Mencatat kehadiran pegawai | Konfigurasi/akses terbatas | Usulan: operator berwenang | Hanya diri sendiri bila alur itu dipilih | Tidak ada login |
-| Verifikasi laporan | Sesuai role yang disetujui | Jika workflow verifikasi dipilih | Tidak boleh memverifikasi laporan sendiri kecuali kebijakan khusus | Tidak |
-| Membuka dashboard laporan | Untuk administrasi teknis sesuai izin | Ya | Ringkasan milik sendiri/penugasan jika disetujui | Tidak |
-| Ekspor PDF/Excel/WhatsApp | Sesuai izin | Ya | Terbatas pada data yang diizinkan | Tidak |
-| Audit log | Terbatas | Hanya yang relevan | Tidak, kecuali data tindakannya sendiri bila disetujui | Tidak |
+| Objek / Tindakan | Administrator Sistem | Admin Sekolah | Guru |
+|---|---|---|---|
+| Mengelola akun Guru & Admin | Ya | Sesuai kebijakan sekolah | Tidak |
+| Membaca seluruh data master | Sesuai kebutuhan sistem | Ya | Hanya kelas & mapel penugasan |
+| Mengubah siswa/kelas/periode | Tidak otomatis | Ya | Tidak |
+| Membaca roster kelas | Ya | Ya | Hanya kelas yang ditugaskan |
+| Mencatat & finalisasi absensi siswa | Tidak | Koreksi jika diperlukan (diaudit) | Ya, sesi yang ditugaskan (*final submitted*) |
+| Mengisi jurnal/materi pembelajaran | Tidak | Koreksi jika diperlukan (diaudit) | Ya, sesi yang ditugaskan (*final submitted*) |
+| Mengisi agenda harian | Tidak | Bantuan operasional bila perlu | Ya, agenda pribadi |
+| Membuka dashboard laporan | Administrasi teknis | Ya, seluruh sekolah | Ringkasan penugasan sendiri |
+| Ekspor PDF / Excel / WhatsApp | Sesuai izin | Ya | Sesuai penugasan sendiri bila diizinkan |
+| Audit log & Riwayat perubahan | Ya | Ya | Notifikasi jika datanya dikoreksi admin |
 
 ## 3. Aturan otorisasi
 
 - Semua operasi terproteksi harus memeriksa izin di server.
-- Jangan mempercayai `user_id`, `teacher_id`, role, kelas, status verifikasi, atau filter yang dikirim frontend.
-- Periksa bahwa sesi benar-benar termasuk penugasan guru.
+- Jangan mempercayai `user_id`, `teacher_id`, role, kelas, status, atau filter yang dikirim frontend.
+- Periksa bahwa sesi benar-benar termasuk penugasan guru yang sedang login.
+- Laporan guru berstatus langsung *final submitted* saat disimpan/dikirim.
+- Jika admin melakukan koreksi data terhadap laporan yang telah difinalkan, sistem mencatat audit log dan memberikan notifikasi ke akun guru bersangkutan.
 - Terapkan otorisasi untuk membaca data, bukan hanya menulis.
 - Pembatasan juga berlaku untuk ekspor PDF/Excel dan pesan WhatsApp.
-- Perubahan penting harus mencatat pelaku, waktu, objek dan tindakan bila audit disetujui.
-- Jangan menampilkan data medis/izin pribadi kepada semua pengguna.
-- Admin teknis tidak otomatis membutuhkan akses isi data pribadi siswa.
+- Jangan menampilkan data medis/izin pribadi kepada pengguna yang tidak berwenang.
 
-## 4. Keputusan yang masih diperlukan
+## 4. Status keputusan hak akses (Fase 1)
 
-1. Siapa membuat dan menonaktifkan akun guru/pegawai?
-2. Apakah seorang pengguna boleh memiliki lebih dari satu peran?
-3. Apakah admin dapat mengedit data absensi yang telah difinalkan?
-4. Apakah guru dapat mengisi agenda sendiri atau admin yang mengisi?
-5. Apakah guru boleh melihat rekap seluruh sekolah atau hanya data penugasannya?
-6. Apakah admin memverifikasi setiap laporan?
-7. Siapa dapat melihat alasan medis/cuti dan detail tertentu?
-
-Jangan implementasikan matriks sebagai final sebelum keputusan ini disetujui.
+- Akun difokuskan pada Guru dan Admin; non-guru ditunda.
+- Guru mengelola dan mengirim absensi serta jurnal langsung berstatus *final submitted*.
+- Guru mengisi agenda harian sendiri.
+- Admin dapat mengoreksi data yang telah difinalkan, dan sistem otomatis memberi notifikasi ke akun guru terkait.
+- Guru melihat rekapitulasi data penugasannya sendiri; admin melihat data agregat seluruh sekolah.
