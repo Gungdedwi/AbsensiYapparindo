@@ -1,0 +1,3 @@
+[submodule ".agents/skills/ui-ux-kit"]
+	path = .agents/skills/ui-ux-kit
+	url = https://github.com/arham777/ui-ux-kit.git
