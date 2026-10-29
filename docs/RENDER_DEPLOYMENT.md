@@ -89,16 +89,32 @@ Dokumentasi:
 
 Isi nilainya hanya di **Render Dashboard → service → Environment** atau secret manager yang disetujui. Jangan meminta pengguna mengirim nilainya lewat chat dan jangan menulis nilai rahasia di `render.yaml`, Git, Dockerfile atau laporan.
 
-Nama yang kemungkinan diperlukan (verifikasi sesuai `config/database.php`, versi Laravel, dan container):
-- `APP_ENV`
-- `APP_DEBUG`
-- `APP_KEY`
-- `APP_URL`
-- `LOG_CHANNEL`
-- `DB_CONNECTION`
-- `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` **atau** satu URL koneksi yang benar-benar didukung oleh konfigurasi Laravel proyek
-- konfigurasi TLS/SSL PostgreSQL sesuai driver dan mode koneksi
-- session/cache driver yang disetujui dan tidak bergantung pada filesystem ephemeral
+> [!IMPORTANT]
+> **Kewajiban Pengaturan Lingkungan Produksi di Render:**
+> - Di Render Dashboard Environment, **WAJIB** diset nilai:
+>   - `APP_ENV=production`
+>   - `APP_DEBUG=false`
+> - Nilai ini krusial untuk mencegah kebocoran konfigurasi internal, database error, atau stack trace sensitif ke pengguna internet. File `.env.example` sengaja tetap memakai `APP_ENV=local` dan `APP_DEBUG=true` karena template tersebut khusus untuk keperluan pengembang di komputer lokal.
+
+Nama yang diperlukan di Render Environment:
+- `APP_ENV=production` (Wajib)
+- `APP_DEBUG=false` (Wajib)
+- `APP_KEY` (Hasil `php artisan key:generate --show`)
+- `APP_URL` (URL service publik Render, contoh `https://absensi-smk.onrender.com`)
+- `APP_TIMEZONE=Asia/Makassar` (WITA)
+- `LOG_CHANNEL=stack`
+- `DB_CONNECTION=pgsql`
+- `DB_HOST` (Host Session Pooler IPv4 dari Supabase)
+- `DB_PORT=5432`
+- `DB_DATABASE=postgres`
+- `DB_USERNAME` (postgres.[project-ref])
+- `DB_PASSWORD` (Password database Supabase Anda)
+- `DB_SCHEMA=public`
+- `DB_SSLMODE=require`
+- `SESSION_DRIVER=database`
+- `CACHE_STORE=database`
+- `QUEUE_CONNECTION=database`
+- `ADMIN_INITIAL_PASSWORD` (Password awal akun admin saat seeding pertama kali)
 
 Jangan membuat dua sumber konfigurasi database yang berkonflik. Render memiliki mekanisme environment variables/secrets yang terpisah dari source code:
 - https://render.com/docs/configure-environment-variables
