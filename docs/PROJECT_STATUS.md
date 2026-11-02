@@ -1,7 +1,7 @@
 # Project Status
 
-**Status:** Fase 2 (Setup Fondasi & Arsitektur) selesai disiapkan — menunggu rencana backup/rollback dan persetujuan terpisah untuk migrasi ke Supabase  
-**Tanggal:** 29 Oktober 2026
+**Status:** Fase 3A (Fondasi Autentikasi, Otorisasi, & Layout Antarmuka) SELESAI — Pengujian in-memory 24 tes (100% lolos)  
+**Tanggal:** 2 November 2026
 
 ## Yang tersedia
 
@@ -87,20 +87,18 @@ Agar tidak terjadi salah paham terkait batas kerja teknis:
 | **Tahap 1 — Analisis & Klarifikasi** | Identifikasi kebutuhan, 6 pertanyaan terbuka. | **Fase 1 (Bagian B)** | **SELESAI** |
 | **Tahap 2 — Dokumen Perencanaan Saja** | Menyusun & memperbarui 16 dokumen draf di `docs/`. | **Fase 1 (Bagian C)** | **SELESAI** |
 | **Tahap 3 — Review & Persetujuan Eksplisit** | Presentasi keputusan, arsitektur, approval gate. | **Fase 1 (Bagian D / Akhir)** | **SELESAI** (Menunggu persetujuan Fase 2) |
-| **Tahap 4 — Implementasi Sub 1–3 & 13** | Kerangka Laravel, auth foundation, migration Supabase, Dockerfile. | **Fase 2 — Setup Fondasi & Arsitektur** | **SELESAI DISIAPKAN** (File migration & seeder siap; eksekusi migrasi ke Supabase menunggu persetujuan terpisah) |
-| **Tahap 4 — Implementasi Sub 4–9** | Data master, jadwal, absensi siswa, jurnal, PWA offline Fase 1. | **Fase 3 — Modul Inti & Offline PWA** | Masa Datang |
+| **Tahap 4 — Implementasi Sub 1–3 & 13** | Kerangka Laravel, auth foundation, migration Supabase, Dockerfile. | **Fase 2 — Setup Fondasi & Arsitektur** | **SELESAI** |
+| **Tahap 4 — Implementasi Sub 2 (Auth)** | Autentikasi email/username, role middleware (teacher vs admin), rate limiting, mobile/desktop UI. | **Fase 3A — Autentikasi & Ruang Kerja** | **SELESAI** (24 tes in-memory lolos) |
+| **Tahap 4 — Implementasi Sub 4, 5, 7, 8** | Data master, jadwal penugasan, absensi siswa individual (H/S/I/A/T/DW), jurnal materi, rekap otomatis. | **Fase 3B — Absensi Siswa & Jurnal Kelas** | Langkah Berikutnya |
+| **Tahap 4 — Implementasi Sub 9** | Offline PWA, service worker, IndexedDB 1 minggu, idempotent sync API, resolusi konflik server-wins. | **Fase 3C — PWA & Sinkronisasi Offline** | Masa Datang |
 | **Tahap 4 — Implementasi Sub 10–11** | Dashboard admin, ekspor PDF/Excel, laporan WhatsApp. | **Fase 4 — Pelaporan & WhatsApp** | Masa Datang |
 | **Tahap 4 — Sub 12, 14 & Tahap 5** | QA/Testing menyeluruh, rilis/deployment prototipe Render. | **Fase 5 — Testing & Deployment Prototipe** | Masa Datang (Butuh izin deploy khusus) |
 
-### Batas Ketat Pekerjaan Fase 2 (Tahap 4 Sub 1–3 & 13):
-- **Termasuk di Fase 2:** Inisialisasi kerangka Laravel 13, konfigurasi Tailwind CSS, file `Dockerfile` + `.dockerignore`, koneksi Supabase Session Pooler (IPv4), file migration tabel fondasi, dan seeder data sintetis (dummy).
-- **TIDAK Termasuk di Fase 2:** Form absensi/jurnal (Fase 3), Service Worker PWA/IndexedDB offline (Fase 3), ekspor PDF/Excel/WhatsApp (Fase 4), deployment live ke cloud Render (Fase 5), serta data riil sekolah.
+### Batas Ketat Pekerjaan Fase 3A:
+- **Termasuk di Fase 3A:** Sistem login multifungsi (email / username), rate limiting (5 percobaan gagal / 60 detik), otorisasi sesi dan role middleware (`EnsureUserHasRole`), antarmuka mobile-first untuk guru, dashboard admin dengan metrik master data, dan test suite PHPUnit in-memory.
+- **TIDAK Termasuk di Fase 3A:** Formulir absensi siswa per sesi (Fase 3B), jurnal kelas (Fase 3B), Service Worker/IndexedDB offline (Fase 3C), dan ekspor laporan/WhatsApp (Fase 4).
 
 ## Langkah berikutnya
 
-1. Pengguna meninjau laporan hasil penyiapan Fase 2.
-2. Penyusunan rencana backup & rollback skema database Supabase sebelum migrasi dieksekusi.
-3. Permintaan persetujuan terpisah untuk menjalankan migrasi ke Supabase.
-
-1. Pengguna meninjau pemetaan di atas dan memastikan batas kerja Fase 2 telah disepakati.
-2. Pengguna memberikan persetujuan eksplisit untuk melangkah ke Fase 2 (Setup fondasi teknis).
+1. Pengguna meninjau hasil implementasi dan pengujian Fase 3A.
+2. Pengguna memberikan arahan atau persetujuan untuk melangkah ke **Fase 3B: Modul Online Absensi Siswa, Jurnal Mengajar, dan Rekap Otomatis**.
