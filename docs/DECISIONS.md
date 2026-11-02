@@ -26,6 +26,9 @@
 | D-025 | Resolusi konflik sinkronisasi: Data server dipertahankan (*server-wins*), akun guru mendapatkan notifikasi bahwa data telah diubah/dibuat oleh admin | Diputuskan |
 | D-026 | Zona waktu resmi sekolah: WITA (`Asia/Makassar`) | Diputuskan |
 | D-027 | Mode koneksi ke Supabase: Session Pooler (IPv4) untuk kompatibilitas penuh dengan Render dan jaringan lokal | Diputuskan |
+| D-028 | Idempotensi per-user: constraint unik gabungan `(user_id, idempotency_key)` pada `sync_logs` untuk mencegah kebocoran status/sesi antar-guru dan mengizinkan retry pada status `failed`/`rejected` | Diputuskan |
+| D-029 | Minimasi paket data offline (`bundle`): Hanya menyertakan `id` dan `name` untuk siswa dan guru, menghapus `nisn`, `nis`, `gender`, dan `nip` demi privasi data di perangkat | Diputuskan |
+| D-030 | Prosedur logout & retensi outbox: Menampilkan dialog konfirmasi eksplisit jika ada antrean pending, mempertahankan pending outbox per user, menghapus `cached_bundles` akun bersangkutan dari IndexedDB, dan membersihkan Cache Storage lama | Diputuskan |
 
 ## Rekomendasi desain/arsitektur
 

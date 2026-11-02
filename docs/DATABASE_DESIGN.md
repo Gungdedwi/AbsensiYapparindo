@@ -59,6 +59,7 @@ erDiagram
 | `lesson_sessions` | Sesi aktual pada tanggal tertentu | Memiliki kelas/penugasan/tanggal/rentang jam/status pelaksanaan. Satu tanggal dapat memiliki banyak sesi. |
 | `lesson_journals` | Nomor pertemuan dan materi | Relasi ke sesi aktual; aturan nomor pertemuan perlu diputuskan. |
 | `student_attendance` | Satu status per siswa per sesi | Constraint unik konseptual `(lesson_session_id, student_id)`. |
+| `sync_logs` | Log idempotensi dan audit sinkronisasi offline | Constraint unik gabungan `(user_id, idempotency_key)`; status `synced`, `conflict`, `failed`, `rejected`. |
 | `daily_agendas` | Agenda harian guru/pegawai | Terpisah dari jurnal; aturan wajib isi per orang/hari masih terbuka. |
 | `staff_attendance` | Kehadiran guru/pegawai per tanggal/shift | Jangan menyimpulkan tidak hadir dari record kosong. |
 | `audit_logs` | Jejak perubahan penting | Minimalkan data yang disimpan; rencanakan retensi dan akses. |
@@ -102,14 +103,15 @@ Status final perlu disetujui sekolah; daftar ini contoh klasifikasi awal untuk m
 2. Foreign key untuk setiap relasi penting.
 3. Unik per siswa per sesi absensi.
 4. Validasi tanggal dan periode siswa di kelas saat sesi berlangsung.
-5. Aturan unik sesi harus membolehkan lebih dari satu sesi di tanggal yang sama.
-6. Transaksi saat membuat sesi dan roster/absensi batch.
-7. Otorisasi server-side memakai penugasan, bukan hanya ID yang dikirim frontend.
-8. Rekap status diturunkan dari records dan bisa direkonsiliasi.
-9. Perubahan historis tidak boleh mengubah keanggotaan kelas lama tanpa aturan.
-10. Penghapusan/penonaktifan data master mempertahankan arsip absensi yang sudah ada.
-11. Gunakan indeks sesuai query yang benar-benar diperlukan.
-12. Data kosong, status belum konfirmasi, dan nol adalah keadaan yang berbeda.
+5. Aturan unik sesi: constraint unik `(teaching_assignment_id, date, period_start)` pada `lesson_sessions` mencegah sesi ganda untuk penugasan dan jam ke-N yang sama, sekaligus menjadi jangkar deteksi konflik *server-wins*.
+6. Transaksi atomik saat membuat sesi dan roster/absensi batch.
+7. Constraint unik gabungan `(user_id, idempotency_key)` pada `sync_logs` untuk mencegah tabrakan/kebocoran kunci antar-pengguna dan mendukung retry aman.
+8. Otorisasi server-side memakai penugasan, bukan hanya ID yang dikirim frontend.
+9. Rekap status diturunkan dari records dan bisa direkonsiliasi.
+10. Perubahan historis tidak boleh mengubah keanggotaan kelas lama tanpa aturan.
+11. Penghapusan/penonaktifan data master mempertahankan arsip absensi yang sudah ada.
+12. Gunakan indeks sesuai query yang benar-benar diperlukan.
+13. Data kosong, status belum konfirmasi, dan nol adalah keadaan yang berbeda.
 
 ## 7. Opsi schema dan koneksi Supabase
 

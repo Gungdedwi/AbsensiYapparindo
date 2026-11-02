@@ -60,7 +60,7 @@ async function saveOfflineBundle(userId, bundleData) {
     });
 }
 
-// 2. Ambil Paket Jadwal & Roster dari IndexedDB
+// 2. Ambil Paket Jadwal & Roster dari IndexedDB (Isolasi Per User)
 async function getOfflineBundle(userId) {
     const db = await openDB();
     return new Promise((resolve, reject) => {
@@ -72,7 +72,20 @@ async function getOfflineBundle(userId) {
     });
 }
 
-// 3. Masukkan Sesi Absensi Offline ke Antrean Outbox (Isolasi Akun)
+// 3. Hapus Paket Roster Pengguna Tertentu dari IndexedDB (dijalankan saat Logout)
+async function clearUserCachedBundle(userId) {
+    if (!userId) return;
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction('cached_bundles', 'readwrite');
+        const store = tx.objectStore('cached_bundles');
+        store.delete(userId);
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = (e) => reject(e.target.error);
+    });
+}
+
+// 4. Masukkan Sesi Absensi Offline ke Antrean Outbox (Isolasi Akun)
 async function queueOfflineSession(userId, payload) {
     const db = await openDB();
     const idempotencyKey = payload.idempotency_key || ('ay-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9));
@@ -93,7 +106,7 @@ async function queueOfflineSession(userId, payload) {
     });
 }
 
-// 4. Ambil Daftar Antrean Pending Milik Pengguna yang Sedang Aktif
+// 5. Ambil Daftar Antrean Pending Milik Pengguna yang Sedang Aktif (Isolasi Akun)
 async function getPendingOutboxItems(userId) {
     const db = await openDB();
     return new Promise((resolve, reject) => {
@@ -110,7 +123,7 @@ async function getPendingOutboxItems(userId) {
     });
 }
 
-// 5. Hapus Item Outbox Setelah Berhasil Disinkronkan
+// 6. Hapus Item Outbox Setelah Berhasil Disinkronkan
 async function removeOutboxItem(idempotencyKey) {
     const db = await openDB();
     return new Promise((resolve, reject) => {
@@ -122,7 +135,7 @@ async function removeOutboxItem(idempotencyKey) {
     });
 }
 
-// 6. Jalankan Proses Sinkronisasi Antrean ke Endpoint Server
+// 7. Jalankan Proses Sinkronisasi Antrean ke Endpoint Server
 async function syncOfflineQueue(userId) {
     if (!navigator.onLine) {
         return { success: false, message: 'Perangkat masih offline.' };
@@ -169,7 +182,59 @@ async function syncOfflineQueue(userId) {
     }
 }
 
-// Inisialisasi Event Listener Global Status Jaringan
+// 8. Bersihkan Cache Storage yang Tidak Diperlukan
+async function clearUnneededCaches() {
+    if ('caches' in window) {
+        try {
+            const keys = await caches.keys();
+            for (const key of keys) {
+                if (key !== 'ay-app-shell-v2') {
+                    await caches.delete(key);
+                }
+            }
+        } catch (err) {
+            console.error('Clear caches error:', err);
+        }
+    }
+}
+
+// 9. Intersepsi Logout untuk Konfirmasi Outbox Pending & Pembersihan Roster Lokal
+async function handleLogoutConfirmation(event, form) {
+    event.preventDefault();
+    const userId = window.currentUserId;
+
+    if (userId) {
+        let pending = [];
+        try {
+            pending = await getPendingOutboxItems(userId);
+        } catch (e) {
+            console.error('Error fetching pending outbox on logout:', e);
+        }
+
+        if (pending && pending.length > 0) {
+            const message = `Ada ${pending.length} catatan belum tersinkron. Keluar akan menyimpannya di perangkat ini sampai kamu login lagi sebagai akun yang sama.`;
+            const proceed = window.confirm(message);
+            if (!proceed) {
+                return false; // Batal keluar
+            }
+        }
+
+        // Hapus paket roster (cached_bundles) milik pengguna dari IndexedDB
+        try {
+            await clearUserCachedBundle(userId);
+        } catch (e) {
+            console.error('Error clearing cached bundle on logout:', e);
+        }
+    }
+
+    // Bersihkan cache storage lama
+    await clearUnneededCaches();
+
+    // Lanjutkan submit form logout
+    form.submit();
+}
+
+// Inisialisasi Event Listener Global Status Jaringan dan Logout
 window.addEventListener('DOMContentLoaded', () => {
     const networkStatusBar = document.getElementById('networkStatusBar');
 
@@ -204,5 +269,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('offline', updateNetworkStatus);
     updateNetworkStatus();
-});
 
+    // Kaitkan proteksi logout pada semua form logout
+    document.querySelectorAll('form[action*="logout"]').forEach((form) => {
+        form.addEventListener('submit', (e) => handleLogoutConfirmation(e, form));
+    });
+});

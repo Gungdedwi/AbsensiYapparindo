@@ -59,8 +59,9 @@ Jangan simpan data pribadi berlebihan seperti alamat, nomor telepon, tanggal lah
 IndexedDB bukan jaminan enkripsi at-rest. Minimalkan data dan durasi penyimpanan. Minta pengguna menggunakan perangkat yang memiliki screen lock dan akun OS terlindungi.
 
 **Kebijakan yang telah diputuskan pengguna:**
-- **Rentang data offline:** jadwal dan roster kelas disimpan untuk **1 minggu ke depan**.
-- **Prosedur logout pada antrean pending:** Pengguna diizinkan logout meskipun masih ada antrean offline yang belum tersinkron. Data antrean lokal **diisolasi dan diikat ke user ID/account binding masing-masing** di IndexedDB sehingga tidak dapat dilihat atau diakses oleh akun lain yang masuk di perangkat yang sama. Antrean tersebut akan dilanjutkan sinkronisasinya saat akun bersangkutan login kembali dalam kondisi online.
+- **Rentang & minimasi data offline:** jadwal dan roster kelas disimpan untuk **1 minggu ke depan**. Sesuai prinsip *data minimization*, paket offline (`bundle`) hanya mengirim `id` dan `name` siswa serta guru; atribut sensitif seperti `nisn`, `nis`, `gender`, dan `nip` dihapus dari paket offline.
+- **Prosedur logout pada antrean pending:** Saat pengguna menekan logout, jika masih ada antrean `pending` di outbox perangkat, sistem menampilkan dialog konfirmasi jelas: *"Ada X catatan belum tersinkron. Keluar akan menyimpannya di perangkat ini sampai kamu login lagi sebagai akun yang sama."* dengan pilihan Batal atau Tetap Keluar.
+- **Pembersihan lokal saat logout:** Setelah konfirmasi keluar, paket roster (`cached_bundles`) milik pengguna dihapus dari IndexedDB dan Cache Storage yang tidak diperlukan dibersihkan. Antrean outbox `pending` tetap dipertahankan dengan isolasi berbasis `user_id` sehingga akun lain yang login di perangkat yang sama tidak dapat membaca atau mengakses data outbox maupun roster akun sebelumnya.
 - Jika sesi Laravel kedaluwarsa saat offline, guru tetap dapat mengisi ruang kerja lokal yang terikat akunnya, dan sinkronisasi akan diproses setelah guru mengautentikasi ulang saat online. Jangan menyimpan token sesi secara eksplisit di IndexedDB.
 
 ### C. Antrean perubahan lokal

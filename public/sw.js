@@ -1,6 +1,5 @@
-const CACHE_NAME = 'ay-app-shell-v1';
+const CACHE_NAME = 'ay-app-shell-v2';
 const APP_SHELL_ASSETS = [
-    '/',
     '/login',
     '/offline',
     '/manifest.json',
@@ -8,7 +7,7 @@ const APP_SHELL_ASSETS = [
     '/icons/icon-512.svg'
 ];
 
-// Install: Simpan app shell aset minimum ke Cache Storage
+// Install: Simpan app shell aset minimum ke Cache Storage (tanpa '/' karena redirect)
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
@@ -90,4 +89,3 @@ self.addEventListener('fetch', (event) => {
         );
     }
 });
-
