@@ -40,5 +40,26 @@ class LessonSession extends Model
     {
         return $this->hasMany(StudentAttendance::class);
     }
+
+    public function getAttendanceSummaryAttribute(): array
+    {
+        $counts = [
+            'total' => $this->attendances->count(),
+            'H' => 0,
+            'S' => 0,
+            'I' => 0,
+            'A' => 0,
+            'T' => 0,
+            'DW' => 0,
+        ];
+
+        foreach ($this->attendances as $attendance) {
+            if (isset($counts[$attendance->status])) {
+                $counts[$attendance->status]++;
+            }
+        }
+
+        return $counts;
+    }
 }
 

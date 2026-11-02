@@ -93,15 +93,26 @@
 
         <!-- Roadmap Pengerjaan Modul -->
         <div class="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-sm space-y-4">
-            <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+            <div class="border-b border-slate-100 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                     <h3 class="text-sm font-bold text-slate-900">Modul Operasional Sistem</h3>
                     <p class="text-xs text-slate-500">Status perkembangan modul aplikasi Absensi & Jurnal SMK Yapparindo</p>
                 </div>
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Fase 3A Selesai
-                </span>
+                <div class="flex items-center gap-3">
+                    <a
+                        href="{{ route('admin.attendance.index') }}"
+                        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 transition"
+                    >
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        <span>Monitoring Presensi Harian</span>
+                    </a>
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Fase 3B Selesai
+                    </span>
+                </div>
             </div>
 
             <div class="grid sm:grid-cols-3 gap-4">
@@ -116,10 +127,10 @@
                     </p>
                 </div>
 
-                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+                <div class="p-4 rounded-xl bg-emerald-50/60 border border-emerald-200/60 space-y-2">
                     <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-bold text-slate-500 uppercase">Fase 3B</span>
-                        <span class="text-[11px] text-amber-700 font-medium">Langkah Berikutnya</span>
+                        <span class="text-[11px] font-bold text-emerald-700 uppercase">Fase 3B</span>
+                        <span class="text-xs text-emerald-800 font-semibold">&#10003; Aktif</span>
                     </div>
                     <h4 class="text-xs font-bold text-slate-900">Absensi Siswa & Jurnal Kelas</h4>
                     <p class="text-[11px] text-slate-600 leading-relaxed">

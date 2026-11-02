@@ -65,16 +65,16 @@
             </div>
         </div>
 
-        <!-- Notifikasi Status Fondasi Fase 3A -->
-        <div class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs space-y-1">
+        <!-- Notifikasi Status Fondasi Fase 3B -->
+        <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs space-y-1">
             <div class="flex items-center gap-2 font-semibold">
-                <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span>Fase 3A: Fondasi Autentikasi & Ruang Kerja Aktif</span>
+                <span>Fase 3B Aktif: Absensi Siswa & Jurnal Mengajar</span>
             </div>
-            <p class="text-amber-800/90 pl-6 leading-relaxed">
-                Anda berhasil masuk ke sistem dengan akun guru resmi. Fitur pencatatan absensi siswa per siswa dan jurnal materi akan hadir pada <strong>Fase 3B</strong>.
+            <p class="text-emerald-800/90 pl-6 leading-relaxed">
+                Pilih salah satu kelas penugasan di bawah untuk mencatat kehadiran siswa dan materi jurnal pembelajaran.
             </p>
         </div>
 
@@ -87,13 +87,13 @@
             </div>
 
             @forelse($assignments as $assignment)
-                <div class="bg-white rounded-xl border border-slate-200/80 p-4 shadow-sm hover:border-emerald-300 transition space-y-2">
+                <a href="{{ route('teacher.assignments.show', $assignment->id) }}" class="block bg-white rounded-xl border border-slate-200/80 p-4 shadow-sm hover:border-emerald-500 hover:shadow-md transition space-y-3">
                     <div class="flex items-start justify-between">
                         <div>
-                            <span class="inline-block px-2 py-0.5 rounded bg-slate-100 text-[11px] font-semibold text-slate-700">
+                            <span class="inline-block px-2.5 py-0.5 rounded bg-emerald-100 text-[11px] font-bold text-emerald-800">
                                 {{ $assignment->classroom->name ?? 'Kelas' }}
                             </span>
-                            <h4 class="text-sm font-bold text-slate-900 mt-1">
+                            <h4 class="text-base font-bold text-slate-900 mt-1">
                                 {{ $assignment->subject->name ?? 'Mata Pelajaran' }}
                             </h4>
                         </div>
@@ -103,12 +103,15 @@
                     </div>
 
                     <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-                        <span class="text-slate-500 text-[11px]">Kode Mapel: {{ $assignment->subject->code ?? '-' }}</span>
-                        <span class="text-emerald-700 font-medium text-[11px] bg-emerald-50 px-2 py-0.5 rounded-full">
-                            Aktif
+                        <span class="text-slate-500 text-xs">Kode: <span class="font-mono">{{ $assignment->subject->code ?? '-' }}</span></span>
+                        <span class="inline-flex items-center gap-1 text-emerald-700 font-semibold text-xs">
+                            <span>Buka Kelas</span>
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
                         </span>
                     </div>
-                </div>
+                </a>
             @empty
                 <div class="bg-white rounded-xl border border-dashed border-slate-200 p-6 text-center text-xs text-slate-500 space-y-1">
                     <p class="font-medium">Belum ada penugasan mengajar yang terdaftar.</p>
