@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Teacher\AttendanceSessionController;
 use App\Http\Controllers\Teacher\DashboardController as TeacherDashboardController;
+use App\Http\Controllers\Teacher\OfflineSyncController;
 use Illuminate\Support\Facades\Route;
 
 // Redirect root ke dashboard masing-masing atau ke halaman login
@@ -17,6 +18,11 @@ Route::get('/', function () {
 
     return redirect()->route('login');
 });
+
+// Halaman Fallback Offline PWA
+Route::get('/offline', function () {
+    return view('offline');
+})->name('offline');
 
 // Autentikasi Guest
 Route::middleware('guest')->group(function () {
@@ -34,6 +40,10 @@ Route::middleware(['auth', 'role:teacher'])->prefix('guru')->name('teacher.')->g
     Route::get('/penugasan/{assignment}/sesi/buat', [AttendanceSessionController::class, 'create'])->name('sessions.create');
     Route::post('/penugasan/{assignment}/sesi', [AttendanceSessionController::class, 'store'])->name('sessions.store');
     Route::get('/sesi/{session}', [AttendanceSessionController::class, 'show'])->name('sessions.show');
+
+    // Endpoint PWA Offline & Sinkronisasi Idempotent
+    Route::get('/api/offline-data', [OfflineSyncController::class, 'bundle'])->name('offline.bundle');
+    Route::post('/api/sync', [OfflineSyncController::class, 'sync'])->name('offline.sync');
 });
 
 // Ruang Kerja Admin Sekolah (Dilindungi autentikasi dan peran admin)

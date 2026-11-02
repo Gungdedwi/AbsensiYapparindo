@@ -1,6 +1,6 @@
 # Project Status
 
-**Status:** Fase 3B (Modul Online Absensi Siswa Individual & Jurnal Mengajar) SELESAI — Pengujian in-memory 32 tes (100% lolos)  
+**Status:** Fase 3 (Modul Inti & Offline PWA: 3A, 3B, 3C) SELESAI — Pengujian in-memory 38 tes (100% lolos)  
 **Tanggal:** 2 November 2026
 
 ## Yang tersedia
@@ -90,15 +90,15 @@ Agar tidak terjadi salah paham terkait batas kerja teknis:
 | **Tahap 4 — Implementasi Sub 1–3 & 13** | Kerangka Laravel, auth foundation, migration Supabase, Dockerfile. | **Fase 2 — Setup Fondasi & Arsitektur** | **SELESAI** |
 | **Tahap 4 — Implementasi Sub 2 (Auth)** | Autentikasi email/username, role middleware (teacher vs admin), rate limiting, mobile/desktop UI. | **Fase 3A — Autentikasi & Ruang Kerja** | **SELESAI** (24 tes in-memory lolos) |
 | **Tahap 4 — Implementasi Sub 4, 5, 7, 8** | Data master, jadwal penugasan, absensi siswa individual (H/S/I/A/T/DW), jurnal materi, rekap otomatis. | **Fase 3B — Absensi Siswa & Jurnal Kelas** | **SELESAI** (32 tes in-memory lolos) |
-| **Tahap 4 — Implementasi Sub 9** | Offline PWA, service worker, IndexedDB 1 minggu, idempotent sync API, resolusi konflik server-wins. | **Fase 3C — PWA & Sinkronisasi Offline** | Langkah Berikutnya |
-| **Tahap 4 — Implementasi Sub 10–11** | Dashboard admin, ekspor PDF/Excel, laporan WhatsApp. | **Fase 4 — Pelaporan & WhatsApp** | Masa Datang |
+| **Tahap 4 — Implementasi Sub 9** | Offline PWA, service worker, IndexedDB 1 minggu, idempotent sync API, resolusi konflik server-wins. | **Fase 3C — PWA & Sinkronisasi Offline** | **SELESAI** (38 tes in-memory lolos) |
+| **Tahap 4 — Implementasi Sub 10–11** | Dashboard admin agregat, ekspor PDF/Excel, pembentuk pesan WhatsApp. | **Fase 4 — Pelaporan & WhatsApp** | Langkah Berikutnya |
 | **Tahap 4 — Sub 12, 14 & Tahap 5** | QA/Testing menyeluruh, rilis/deployment prototipe Render. | **Fase 5 — Testing & Deployment Prototipe** | Masa Datang (Butuh izin deploy khusus) |
 
-### Batas Ketat Pekerjaan Fase 3B:
-- **Termasuk di Fase 3B:** Alur guru (mobile-first) untuk membuka penugasan, memulai sesi pembelajaran baru, mencatat materi jurnal mengajar, mengisi presensi individual siswa (H, S, I, A, T, DW) dengan bantuan cepat "Tandai Semua Hadir", kalkulasi rekap otomatis di server, penyimpanan atomik berstatus langsung *final submitted*, halaman rincian sesi guru, pemantauan harian presensi oleh admin sekolah, serta perlindungan IDOR di backend.
-- **TIDAK Termasuk di Fase 3B:** Service Worker/IndexedDB offline (Fase 3C), generator pesan WhatsApp & ekspor PDF/Excel (Fase 4), dan migrasi langsung ke cloud Supabase (menunggu persetujuan terpisah).
+### Batas Ketat Pekerjaan Fase 3C:
+- **Termasuk di Fase 3C:** Web App Manifest (`manifest.json`), Service Worker (`sw.js`) dengan cache app shell, IndexedDB storage adapter (`offline-sync.js`) untuk paket jadwal/roster 1 minggu ke depan, isolasi akun lokal saat logout (D-024), endpoint server `POST /guru/api/sync` dengan idempotensi mutlak dan resolusi konflik server-wins (D-025), serta notifikasi sistem otomatis saat terjadi konflik.
+- **TIDAK Termasuk di Fase 3C:** Generator pesan WhatsApp & ekspor PDF/Excel (Fase 4), dan migrasi cloud ke Supabase (menunggu persetujuan terpisah).
 
 ## Langkah berikutnya
 
-1. Pengguna meninjau hasil implementasi dan pengujian Fase 3B.
-2. Pengguna memberikan arahan untuk melakukan komit/push atau melangkah ke **Fase 3C: PWA, Penyimpanan Lokal IndexedDB (1 Minggu), dan Sinkronisasi Idempotent Offline**.
+1. Pengguna meninjau hasil implementasi dan pengujian Fase 3C.
+2. Pengguna memberikan arahan untuk melakukan komit/push atau melangkah ke **Fase 4: Pelaporan & WhatsApp (Dashboard Agregat, Ekspor PDF/Excel, Pratinjau WhatsApp)**.

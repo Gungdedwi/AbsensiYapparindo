@@ -65,17 +65,47 @@
             </div>
         </div>
 
-        <!-- Notifikasi Status Fondasi Fase 3B -->
-        <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs space-y-1">
-            <div class="flex items-center gap-2 font-semibold">
-                <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>Fase 3B Aktif: Absensi Siswa & Jurnal Mengajar</span>
+        <!-- Notifikasi Status Fondasi Fase 3C & PWA Offline -->
+        <div class="p-4 rounded-xl bg-white border border-slate-200/80 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Mode Offline PWA Aktif</h3>
+                </div>
+                <span id="pendingBadge" class="hidden px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[11px] font-bold">
+                    0 Pending
+                </span>
             </div>
-            <p class="text-emerald-800/90 pl-6 leading-relaxed">
-                Pilih salah satu kelas penugasan di bawah untuk mencatat kehadiran siswa dan materi jurnal pembelajaran.
+
+            <p class="text-xs text-slate-500 leading-relaxed">
+                Jadwal & roster siswa dapat disimpan di memori perangkat (IndexedDB) untuk rentang 1 minggu ke depan. Absensi tetap dapat dicatat saat sinyal hilang.
             </p>
+
+            <div class="pt-1 flex flex-wrap items-center gap-2">
+                <button
+                    type="button"
+                    id="downloadBundleBtn"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold border border-emerald-200 transition cursor-pointer"
+                >
+                    <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    <span>Unduh Roster 1 Minggu</span>
+                </button>
+
+                <button
+                    type="button"
+                    id="manualSyncBtn"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-200 transition cursor-pointer"
+                >
+                    <svg class="w-4 h-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span>Sinkronkan Sekarang</span>
+                </button>
+            </div>
+
+            <div id="syncFeedback" class="text-[11px] text-slate-400 font-medium"></div>
         </div>
 
         <!-- Daftar Penugasan Mengajar Aktif -->
@@ -121,5 +151,65 @@
         </div>
     </main>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', async function () {
+        const userId = window.currentUserId;
+        const pendingBadge = document.getElementById('pendingBadge');
+        const syncFeedback = document.getElementById('syncFeedback');
+        const downloadBtn = document.getElementById('downloadBundleBtn');
+        const syncBtn = document.getElementById('manualSyncBtn');
+
+        async function refreshPendingCount() {
+            if (!userId) return;
+            try {
+                const pending = await getPendingOutboxItems(userId);
+                if (pending.length > 0) {
+                    pendingBadge.textContent = pending.length + ' Pending Sync';
+                    pendingBadge.classList.remove('hidden');
+                } else {
+                    pendingBadge.classList.add('hidden');
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', async function () {
+                syncFeedback.textContent = 'Mengunduh roster dan jadwal 1 minggu...';
+                try {
+                    const res = await fetch('/guru/api/offline-data');
+                    if (!res.ok) throw new Error('Gagal mengunduh paket data offline.');
+                    const bundle = await res.json();
+                    await saveOfflineBundle(userId, bundle);
+                    syncFeedback.textContent = '✓ Data 1 minggu ke depan berhasil disimpan di perangkat (IndexedDB).';
+                } catch (err) {
+                    syncFeedback.textContent = '✕ Gagal mengunduh: ' + err.message;
+                }
+            });
+        }
+
+        if (syncBtn) {
+            syncBtn.addEventListener('click', async function () {
+                syncFeedback.textContent = 'Menyinkronkan data ke server...';
+                const res = await syncOfflineQueue(userId);
+                if (res.success) {
+                    syncFeedback.textContent = '✓ ' + (res.count || 0) + ' data berhasil disinkronkan ke server.';
+                    await refreshPendingCount();
+                    if (res.count > 0) {
+                        setTimeout(() => window.location.reload(), 1000);
+                    }
+                } else {
+                    syncFeedback.textContent = '✕ ' + (res.message || res.error || 'Gagal sinkronisasi.');
+                }
+            });
+        }
+
+        await refreshPendingCount();
+    });
+</script>
 @endsection
 

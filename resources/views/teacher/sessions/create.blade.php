@@ -370,6 +370,52 @@
         });
 
         updateSummary();
+
+        // Tangani Pengiriman Form saat Offline
+        const form = document.getElementById('attendanceForm');
+        if (form) {
+            form.addEventListener('submit', async function (e) {
+                if (!navigator.onLine) {
+                    e.preventDefault();
+
+                    const formData = new FormData(form);
+                    const attendance = {};
+                    const attendanceNotes = {};
+
+                    for (let [key, val] of formData.entries()) {
+                        if (key.startsWith('attendance[')) {
+                            const studentId = key.match(/\[(\d+)\]/)[1];
+                            attendance[studentId] = val;
+                        } else if (key.startsWith('attendance_notes[')) {
+                            const studentId = key.match(/\[(\d+)\]/)[1];
+                            attendanceNotes[studentId] = val;
+                        }
+                    }
+
+                    const payload = {
+                        teaching_assignment_id: {{ $assignment->id }},
+                        date: formData.get('date'),
+                        time_start: formData.get('time_start'),
+                        time_end: formData.get('time_end'),
+                        period_start: parseInt(formData.get('period_start')),
+                        period_end: parseInt(formData.get('period_end')),
+                        meeting_number: parseInt(formData.get('meeting_number')),
+                        topic: formData.get('topic'),
+                        notes: formData.get('notes'),
+                        attendance: attendance,
+                        attendance_notes: attendanceNotes
+                    };
+
+                    try {
+                        await queueOfflineSession(window.currentUserId, payload);
+                        alert('Mode Offline: Data absensi dan jurnal kelas telah disimpan di memori perangkat (IndexedDB). Sistem akan otomatis menyinkronkan data ini saat sinyal internet kembali.');
+                        window.location.href = "{{ route('teacher.dashboard') }}";
+                    } catch (err) {
+                        alert('Gagal menyimpan ke penyimpanan lokal: ' + err.message);
+                    }
+                }
+            });
+        }
     });
 </script>
 @endsection
